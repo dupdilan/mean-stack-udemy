@@ -1,8 +1,10 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
+const path = require("path");
 
-const Post = require('./models/post');
+const postRoutes = require('./routes/posts');
+const userRoutes = require('./routes/user');
 
 const app = express();
 
@@ -19,6 +21,8 @@ mongoose.connect('mongodb://localhost:27017/node-angular', {useNewUrlParser: tru
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
 
+app.use("/images",express.static(path.join("backend/images")));
+
 app.use((req,res,next)=>{
   res.setHeader("Access-Control-Allow-Origin","*");
   res.setHeader(
@@ -30,65 +34,7 @@ app.use((req,res,next)=>{
 
 });
 
-app.post("/api/posts",(req,res,next)=>{
-  const post = new Post({
-    title: req.body.title,
-    content: req.body.content
-  });
-  // console.log(post);
-  post.save().then(createdPost => {
-    // console.log(result);
-    res.status(201).json({
-      message: 'Post Added Succesfully',
-      postId: createdPost._id
-  });
-
-
-  });
-
-});
-
-app.put("/api/posts/:id",(req,res,next)=>{
-  const post =new Post({
-    _id: req.body.id,
-    title: req.body.title,
-    content:req.body.content
-  });
-  Post.updateOne({_id: req.params.id}, post ).then(result => {
-    console.log(result);
-    res.status(200).json({ message: "Updated Successful!"});
-  });
-});
-
-app.get('/api/posts',(req,res,next)=> {
-  // const posts = [
-  //   { id:'asdsadasd456',
-  //   title:"first",
-  //   content: "asdgsahgdasjdgasd"
-  // },
-  //   { id:'asdsadas48782',
-  //   title:"second",
-  //   content: "aswd"
-  // }
-  // ];
-  Post.find()
-  .then(documents =>{
-    // console.log(document);
-      res.status(200).json({
-      message: 'Post fetched Susccesfully',
-      posts: documents
-    });
-  });
-
-});
-
-app.delete('/api/posts/:id',(req,res,next)=>{
-  // console.log(req.params.id);
-  Post.deleteOne({_id: req.params.id}).then(result => {
-    // console.log(result);
-    res.status(200).json({message: 'Post deleted'});
-  })
-
-});
+app.use("/api/posts", postRoutes)
+app.use("/api/user", userRoutes)
 
 module.exports = app;
