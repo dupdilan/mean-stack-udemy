@@ -30,6 +30,6 @@
 mat-raised-button
 color="accent"
 type="submit"
-required>Login</button>
+required *ngIf="!isLoading">Login</button>
 </form>
 </mat-card>
